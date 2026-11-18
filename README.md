@@ -18,17 +18,19 @@ The aim is for this repository to become unnecessary: its parts are being offere
 | Chip | ESP32-S31 (ESP32-S31-Function-CoreBoard-1), High-Speed USB host port |
 | Software | ESPHome 2026.11.0b4, ESP-IDF 6.1.0, `espressif/usb` 1.4.1 |
 | Devices | Schiit Modi+ (30BE:100C, asynchronous with a feedback endpoint), CUBILUX CA7 (0BDA:4F25) |
-| Playback | 48 kHz, 16-bit, stereo, on both devices |
+| Playback | CA7: 44.1, 48 and 96 kHz at 16 bits, 48 kHz at 24 bits (see [Formats tested](#formats-tested)). Modi+: 48 kHz, 16-bit |
 | Recording | 48 kHz, 16-bit, stereo, from the CA7's line input |
 
-- **Playback** has had the most use. The longest run was 3 hours 39 minutes of music with no packet lost. It has one
-  known fault that stops playback (see [Known issues](#known-issues)).
+- **Playback** has had the most use, nearly all of it at 48 kHz, 16-bit: the longest run was 3 hours 39 minutes of
+  music with no packet lost. The other formats had runs of about two minutes each. Playback has one known fault
+  that stops it (see [Known issues](#known-issues)).
 - **Recording** has had little: the CA7's line input, sent to a server through Sendspin's source role and heard on
-  another player, for more than 20 minutes, part of that while the CA7 was also playing. Nothing counts lost
-  recording packets yet.
+  another player, for 45 minutes, 32 of them while the CA7 was also playing. Sendspin's source dropped three chunks
+  of audio in that time, about one every 18 minutes. Nothing counts lost recording packets yet.
 - **Not run on hardware:** the ESP32-P4, Full-Speed ports (ESP32-S2, ESP32-S3), ESP-IDF 5.x, devices behind a hub,
-  and every format other than 48 kHz, 16-bit, stereo. [minimal.yaml](examples/minimal.yaml) compiles for the
-  ESP32-P4 and the ESP32-S3 with ESP-IDF 5.5.6, which is all that is known about them.
+  and the formats listed as untested under [Formats tested](#formats-tested).
+  [minimal.yaml](examples/minimal.yaml) compiles for the ESP32-P4 and the ESP32-S3 with ESP-IDF 5.5.6, which is all
+  that is known about them.
 
 UAC 1.0 devices go through the same code as in the original driver; the offline tests compare the two on a UAC 1.0
 speaker and a webcam microphone.
@@ -107,6 +109,99 @@ all of this holds:
 
 The same limits on format and clock apply to recording.
 
+## Formats tested
+
+ESPHome sets the outer limits, and in 2026.11.0b4 they are narrower than the `usb_audio` options suggest:
+
+- The `usb_audio` speaker takes 8 to 96 kHz, 8 to 32 bits, mono or stereo.
+- The `resampler` speaker stops at 48 kHz.
+- A `speaker_source` media player only accepts a speaker that takes 16-bit audio, so a 24- or 32-bit USB speaker
+  needs a `resampler` speaker in front of it.
+- Sendspin's media source takes 16 to 96 kHz and 16 or 24 bits.
+
+Together: 24 and 32 bits are possible up to 48 kHz only, rates above 48 kHz at 16 bits only, and 96 kHz at 24 bits
+cannot be configured.
+
+These were played on the CUBILUX CA7's headphone jack, as a Sendspin player on the ESP32-S31 with a Music Assistant
+server. Each run was listened to and checked in the log, for 80 to 140 seconds unless the table says otherwise.
+No run had a skipped packet, a failed packet or a stall.
+
+| On USB | Stream from the server | Resampler speaker | Result |
+| --- | --- | --- | --- |
+| 48 kHz, 16-bit | 48 kHz, 16-bit | passes it through | clean; longest run 3 h 39 min |
+| 48 kHz, 24-bit | 48 kHz, 16-bit | widens to 24 bits | clean |
+| 48 kHz, 24-bit | 48 kHz, 24-bit | passes it through | clean |
+| 96 kHz, 16-bit | 96 kHz, 16-bit | none | clean |
+| 44.1 kHz, 16-bit | 44.1 kHz, 16-bit | none | clean |
+| 44.1 kHz, 16-bit | 48 kHz, 16-bit | converts the rate | plays, but Sendspin lost sync once in 100 s |
+| 44.1 kHz, 24-bit | 48 kHz, 16-bit | converts the rate and widens | plays, but Sendspin lost sync 4 times in 90 s |
+
+What follows from it:
+
+- **For 44.1 kHz, let the server deliver 44.1 kHz.** Converting 48 to 44.1 kHz on the board loses sync
+  (see [Known issues](#known-issues)).
+- **Check the log when a format stays silent.** The CA7 does not offer 88.2 kHz, and the log said so:
+  `Speaker interface 4 does not support requested format`, followed by the formats it does offer (44.1, 48, 96,
+  176.4, 192, 352.8 and 384 kHz at 16 bits). A UAC 2.0 device's rates are not in its configuration descriptor; it
+  answers a request for them, so only a real connection shows the list.
+- **A refused format has an after-effect.** With no speaker to play to, Sendspin's player overran its buffer and
+  closed its connection several times, and the server then took two minutes to reconnect to the next, working
+  firmware.
+
+Untested: 32 bits (the CA7 has no 32-bit setting; the Modi+ does and comes next), every format on the Modi+ other
+than 48 kHz, 16-bit, and mono, 8 bits and rates below 44.1 kHz, which neither DAC offers.
+
+For a real 24-bit stream at 48 kHz, the player has to ask the server for 24 bits; these are the parts of
+[the example](examples/esp32-s31-function-coreboard.yaml) that change:
+
+```yaml
+speaker:
+  - platform: usb_audio
+    id: usb_speaker
+    sample_rate: 48000
+    bits_per_sample: 24bit
+    num_channels: 2
+
+  - platform: resampler
+    id: media_resampling_speaker
+    output_speaker: usb_speaker
+    sample_rate: 48000
+    bits_per_sample: 24
+
+media_source:
+  - platform: sendspin
+    id: sendspin_source
+    bits_per_sample: 24
+```
+
+For 96 kHz (or 44.1 kHz), the server has to deliver that rate and the `resampler` speaker is left out:
+
+```yaml
+speaker:
+  - platform: usb_audio
+    id: usb_speaker
+    sample_rate: 96000
+    bits_per_sample: 16bit
+    num_channels: 2
+
+media_source:
+  - platform: sendspin
+    id: sendspin_source
+    sample_rate: 96000
+
+media_player:
+  - platform: speaker_source
+    id: usb_media_player
+    name: "Player"
+    media_pipeline:
+      speaker: usb_speaker
+      format: FLAC
+      num_channels: 2
+      sample_rate: 96000
+      sources:
+        - sendspin_source
+```
+
 ## Reporting what you find
 
 Reports from other boards and devices are the point of publishing this, whether it worked or not. Please open an
@@ -184,6 +279,13 @@ High-Speed port on such a build (ESP32-P4) is untested and may lose packets.
   through to the device until the board is restarted. With the Modi+ this happened about every 75 minutes of music on
   average, sometimes after a few minutes; with the CA7 once in more than 15 hours. The cause is not known, and the
   RAM placement above does not remove it.
+- **Converting 48 kHz to 44.1 kHz on the board loses sync.** With a `resampler` speaker converting the rate in front
+  of the USB speaker, Sendspin lost sync every 10 to 70 seconds, each time about 80 to 90 ms off. With the server
+  delivering 44.1 kHz and no `resampler` speaker there was no loss. Where in the resampler path it arises is not
+  known.
+- The USB speaker's buffer is ESPHome's 6,400 bytes for every format: 33 ms of audio at 48 kHz, 16-bit, but 17 ms at
+  96 kHz. The driver's once-a-second warning then counts more transfers that waited for data (7 in 140 seconds at
+  96 kHz, none at 48 kHz after the start). `buffer_size` on the speaker raises it; a larger value is untested.
 - Nothing reports recording packets the host controller skipped, and the recording interface cannot be chosen.
 - A feedback endpoint that asks to be read less often than every 32 (micro)frames (`bInterval` above 6) is ignored,
   and the device is sent the nominal rate.
