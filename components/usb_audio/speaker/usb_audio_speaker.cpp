@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cinttypes>
+#include <cstring>
 
 #include "esphome/core/hal.h"
 #include "esphome/core/log.h"
@@ -20,6 +21,10 @@ static constexpr size_t MAX_TIMEOUT_RETRIES = 4;
 static constexpr uint32_t RING_LOG_INTERVAL_MS = 10000;
 // Zeros are silence for the signed PCM the driver streams; 240 is a whole number of frames for every format.
 static constexpr uint8_t SILENCE[240] = {};
+// Widened samples go to the driver in pieces of this size; a whole number of frames for every format.
+static constexpr size_t WIDEN_BYTES = 960;
+// Narrower audio than this is unsigned and is not widened.
+static constexpr uint8_t MIN_WIDENED_BITS = 16;
 
 void USBAudioSpeaker::setup() {
   const auto &info = this->usb_stream_info_;
@@ -226,7 +231,14 @@ size_t USBAudioSpeaker::play(const uint8_t *data, size_t length, TickType_t tick
 size_t USBAudioSpeaker::play(const uint8_t *data, size_t length) { return this->play(data, length, 0); }
 
 size_t USBAudioSpeaker::play_internal_(const uint8_t *data, size_t length, uint32_t budget_ms) {
-  if (this->audio_stream_info_ != this->usb_stream_info_) {
+  const uint8_t audio_bits = this->audio_stream_info_.get_bits_per_sample();
+  const uint8_t usb_bits = this->usb_stream_info_.get_bits_per_sample();
+  // Narrower samples are widened here: a media player hands out 16-bit audio, and a DAC may offer only 24 or 32
+  // bits.
+  const bool widen = audio_bits < usb_bits;
+  if (this->audio_stream_info_.get_sample_rate() != this->usb_stream_info_.get_sample_rate() ||
+      this->audio_stream_info_.get_channels() != this->usb_stream_info_.get_channels() || audio_bits > usb_bits ||
+      (widen && (audio_bits < MIN_WIDENED_BITS || audio_bits % 8 != 0))) {
     // Playing it through the configured stream would change the speed and channel layout.
     if (!this->format_mismatch_.exchange(true)) {
       const auto &info = this->audio_stream_info_;
@@ -254,6 +266,8 @@ size_t USBAudioSpeaker::play_internal_(const uint8_t *data, size_t length, uint3
   // Counted before the hub's handle is read, so the hub never closes the device under this call.
   this->writes_in_flight_.fetch_add(1);
 
+  // What the caller counts in; the same as frame_bytes_ unless the samples are widened.
+  const size_t audio_frame_bytes = this->audio_stream_info_.frames_to_bytes(1);
   // Runs on the caller's task, so the cached loop time does not apply.
   const uint32_t start_ms = millis();
   uint32_t now = start_ms;
@@ -266,8 +280,13 @@ size_t USBAudioSpeaker::play_internal_(const uint8_t *data, size_t length, uint3
     if (budget_ms > 0 && elapsed >= budget_ms) {
       break;
     }
-    const size_t chunk =
-        this->flushing_ ? 0 : std::min<size_t>({length - written, this->write_chunk_, this->ring_room_()});
+    // In the USB stream's bytes. Widened audio goes out in whole frames of the caller's.
+    size_t chunk = 0;
+    if (!this->flushing_) {
+      chunk = widen ? std::min<size_t>({(length - written) / audio_frame_bytes * this->frame_bytes_, this->write_chunk_,
+                                        this->ring_room_(), WIDEN_BYTES})
+                    : std::min<size_t>({length - written, this->write_chunk_, this->ring_room_()});
+    }
     if (chunk == 0) {
       // Back-pressure: wait for the driver to take a transfer, or for loop() to finish padding a tail.
       if (budget_ms == 0) {
@@ -278,10 +297,11 @@ size_t USBAudioSpeaker::play_internal_(const uint8_t *data, size_t length, uint3
       continue;
     }
     const uint32_t timeout_ms = budget_ms > 0 ? budget_ms - elapsed : 0;
-    const esp_err_t err = this->write_(data + written, chunk, timeout_ms, false);
+    const esp_err_t err = widen ? this->write_widened_(data + written, chunk, audio_bits / 8, timeout_ms)
+                                : this->write_(data + written, chunk, timeout_ms, false);
     now = millis();
     if (err == ESP_OK) {
-      written += chunk;
+      written += chunk / this->frame_bytes_ * audio_frame_bytes;
       timeout_retries = 0;
     } else if (err == ESP_ERR_INVALID_STATE) {
       // The device went away.
@@ -323,6 +343,20 @@ esp_err_t USBAudioSpeaker::write_(const uint8_t *data, size_t length, uint32_t t
     }
   }
   return err;
+}
+
+esp_err_t USBAudioSpeaker::write_widened_(const uint8_t *data, size_t usb_bytes, size_t audio_sample_bytes,
+                                          uint32_t timeout_ms) {
+  // On the caller's stack, and only when samples are widened.
+  uint8_t widened[WIDEN_BYTES];
+  const size_t usb_sample_bytes = this->usb_stream_info_.get_bits_per_sample() / 8;
+  // The samples are little-endian and signed: the caller's bytes on top and zeros below keep the value.
+  const size_t zeros = usb_sample_bytes - audio_sample_bytes;
+  for (uint8_t *out = widened; out < widened + usb_bytes; out += usb_sample_bytes, data += audio_sample_bytes) {
+    std::memset(out, 0, zeros);
+    std::memcpy(out + zeros, data, audio_sample_bytes);
+  }
+  return this->write_(widened, usb_bytes, timeout_ms, false);
 }
 
 void USBAudioSpeaker::pad_with_silence_() {

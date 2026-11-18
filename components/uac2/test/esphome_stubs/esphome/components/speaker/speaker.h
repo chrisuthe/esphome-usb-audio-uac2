@@ -33,6 +33,9 @@ class Speaker {
   bool is_stopped() const { return this->state_ == STATE_STOPPED; }
   virtual void set_volume(float volume) { this->volume_ = volume; }
   virtual void set_mute_state(bool mute_state) { this->mute_state_ = mute_state; }
+  void set_audio_stream_info(const audio::AudioStreamInfo &audio_stream_info) {
+    this->audio_stream_info_ = audio_stream_info;
+  }
   template<typename F> void add_audio_output_callback(F &&callback) {
     this->audio_output_callback_.add(std::forward<F>(callback));
   }

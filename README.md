@@ -18,7 +18,7 @@ The aim is for this repository to become unnecessary: its parts are being offere
 | Chip | ESP32-S31 (ESP32-S31-Function-CoreBoard-1), High-Speed USB host port |
 | Software | ESPHome 2026.11.0b4, ESP-IDF 6.1.0, `espressif/usb` 1.4.1 |
 | Devices | Schiit Modi+ (30BE:100C, asynchronous with a feedback endpoint), CUBILUX CA7 (0BDA:4F25) |
-| Playback | CA7: 44.1, 48 and 96 kHz at 16 bits, 48 kHz at 24 bits (see [Formats tested](#formats-tested)). Modi+: 48 kHz, 16-bit |
+| Playback | CA7: 44.1, 48 and 96 kHz at 16 bits, 48 and 96 kHz at 24 bits (see [Formats tested](#formats-tested)). Modi+: 48 kHz, 16-bit |
 | Recording | 48 kHz, 16-bit, stereo, from the CA7's line input |
 
 - **Playback** has had the most use, nearly all of it at 48 kHz, 16-bit: the longest run was 3 hours 39 minutes of
@@ -115,12 +115,13 @@ ESPHome sets the outer limits, and in 2026.11.0b4 they are narrower than the `us
 
 - The `usb_audio` speaker takes 8 to 96 kHz, 8 to 32 bits, mono or stereo.
 - The `resampler` speaker stops at 48 kHz.
-- A `speaker_source` media player only accepts a speaker that takes 16-bit audio, so a 24- or 32-bit USB speaker
-  needs a `resampler` speaker in front of it.
+- A `speaker_source` media player only accepts a speaker that takes 16-bit audio. ESPHome's own `usb_audio` speaker
+  takes nothing but its configured sample size, so there a 24- or 32-bit USB speaker needs a `resampler` speaker in
+  front of it, and with that 48 kHz is the end.
 - Sendspin's media source takes 16 to 96 kHz and 16 or 24 bits.
 
-Together: 24 and 32 bits are possible up to 48 kHz only, rates above 48 kHz at 16 bits only, and 96 kHz at 24 bits
-cannot be configured.
+The speaker here takes samples from 16 bits up to its configured size and widens the narrower ones itself, so it
+needs no `resampler` speaker for that. With it a Sendspin stream can reach the DAC at up to 96 kHz and 24 bits.
 
 These were played on the CUBILUX CA7's headphone jack, as a Sendspin player on the ESP32-S31 with a Music Assistant
 server. Each run was listened to and checked in the log, for 80 to 140 seconds unless the table says otherwise.
@@ -132,6 +133,7 @@ No run had a skipped packet, a failed packet or a stall.
 | 48 kHz, 24-bit | 48 kHz, 16-bit | widens to 24 bits | clean |
 | 48 kHz, 24-bit | 48 kHz, 24-bit | passes it through | clean |
 | 96 kHz, 16-bit | 96 kHz, 16-bit | none | clean |
+| 96 kHz, 24-bit | 96 kHz, 24-bit | none | clean, with `buffer_size: 19200` |
 | 44.1 kHz, 16-bit | 44.1 kHz, 16-bit | none | clean |
 | 44.1 kHz, 16-bit | 48 kHz, 16-bit | converts the rate | plays, but Sendspin lost sync once in 100 s |
 | 44.1 kHz, 24-bit | 48 kHz, 16-bit | converts the rate and widens | plays, but Sendspin lost sync 4 times in 90 s |
@@ -149,10 +151,12 @@ What follows from it:
   firmware.
 
 Untested: 32 bits (the CA7 has no 32-bit setting; the Modi+ does and comes next), every format on the Modi+ other
-than 48 kHz, 16-bit, and mono, 8 bits and rates below 44.1 kHz, which neither DAC offers.
+than 48 kHz, 16-bit, and mono, 8 bits and rates below 44.1 kHz, which neither DAC offers. The speaker's own widening
+(a 16-bit stream into a 24- or 32-bit USB stream with no `resampler` speaker) has only run in the offline tests: in
+the 24-bit runs above the samples reached the speaker already 24 bits wide.
 
-For a real 24-bit stream at 48 kHz, the player has to ask the server for 24 bits; these are the parts of
-[the example](examples/esp32-s31-function-coreboard.yaml) that change:
+For a real 24-bit stream, the player has to ask the server for 24 bits. At 48 kHz with the `resampler` speaker
+kept, these are the parts of [the example](examples/esp32-s31-function-coreboard.yaml) that change:
 
 ```yaml
 speaker:
@@ -174,20 +178,24 @@ media_source:
     bits_per_sample: 24
 ```
 
-For 96 kHz (or 44.1 kHz), the server has to deliver that rate and the `resampler` speaker is left out:
+For 96 kHz (or 44.1 kHz), the server has to deliver that rate and the `resampler` speaker is left out. This is
+the 96 kHz, 24-bit configuration; for 16 bits drop the two `bits_per_sample` lines and `buffer_size`:
 
 ```yaml
 speaker:
   - platform: usb_audio
     id: usb_speaker
     sample_rate: 96000
-    bits_per_sample: 16bit
+    bits_per_sample: 24bit
     num_channels: 2
+    # 33 ms at this format; the default 6400 bytes would hold 11 ms
+    buffer_size: 19200
 
 media_source:
   - platform: sendspin
     id: sendspin_source
     sample_rate: 96000
+    bits_per_sample: 24
 
 media_player:
   - platform: speaker_source
@@ -255,6 +263,9 @@ sample rate request above.
   size, which no longer holds once a device's feedback changes the packet sizes.
 - A volume change while playing no longer stops the audio for good. The stock speaker counts a write that is still
   waiting as written, and after a failed write its count wraps.
+- It takes audio with narrower samples than the USB stream's (16 bits and up) and widens it. ESPHome's media
+  players hand out 16-bit audio, and a DAC may offer only 24 or 32 bits; the stock speaker needs a `resampler`
+  speaker in between, which stops at 48 kHz.
 
 The microphone is unchanged.
 
@@ -285,7 +296,8 @@ High-Speed port on such a build (ESP32-P4) is untested and may lose packets.
   known.
 - The USB speaker's buffer is ESPHome's 6,400 bytes for every format: 33 ms of audio at 48 kHz, 16-bit, but 17 ms at
   96 kHz. The driver's once-a-second warning then counts more transfers that waited for data (7 in 140 seconds at
-  96 kHz, none at 48 kHz after the start). `buffer_size` on the speaker raises it; a larger value is untested.
+  96 kHz, none at 48 kHz after the start). `buffer_size` on the speaker raises it: with 19,200 bytes at 96 kHz,
+  24-bit there was no wait in 90 seconds.
 - Nothing reports recording packets the host controller skipped, and the recording interface cannot be chosen.
 - A feedback endpoint that asks to be read less often than every 32 (micro)frames (`bInterval` above 6) is ignored,
   and the device is sent the nominal rate.

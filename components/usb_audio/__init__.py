@@ -55,14 +55,19 @@ def stream_schema(default_sample_rate: int, default_num_channels: int) -> cv.Sch
     ).extend(cv.COMPONENT_SCHEMA)
 
 
-def set_stream_limits(config: ConfigType) -> ConfigType:
-    """Pin the audio stream limits to the one configured format."""
+def set_stream_limits(
+    config: ConfigType, min_bits_per_sample: int | None = None
+) -> ConfigType:
+    """Pin the audio stream limits to the one configured format.
+
+    A platform that widens narrower samples itself passes the smallest size it takes as min_bits_per_sample.
+    """
     bits_per_sample = int(config[CONF_BITS_PER_SAMPLE])
     channels = config[CONF_NUM_CHANNELS]
     sample_rate = config[CONF_SAMPLE_RATE]
     # The limits validator edits the config in place and returns None
     audio.set_stream_limits(
-        min_bits_per_sample=bits_per_sample,
+        min_bits_per_sample=min_bits_per_sample or bits_per_sample,
         max_bits_per_sample=bits_per_sample,
         min_channels=channels,
         max_channels=channels,

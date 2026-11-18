@@ -59,6 +59,8 @@ class USBAudioSpeaker : public speaker::Speaker,
   void pad_with_silence_();
   /// Write to the driver, counting the bytes in ring_bytes_ (and in ring_padding_ for silence padding).
   esp_err_t write_(const uint8_t *data, size_t length, uint32_t timeout_ms, bool padding);
+  /// Write samples of audio_sample_bytes each as usb_bytes of the USB stream's larger samples.
+  esp_err_t write_widened_(const uint8_t *data, size_t usb_bytes, size_t audio_sample_bytes, uint32_t timeout_ms);
   /// Bytes that can be written without filling the driver's ring buffer past buffer_size_.
   size_t ring_room_() const;
   bool transfers_in_flight_() const;
@@ -67,7 +69,8 @@ class USBAudioSpeaker : public speaker::Speaker,
   bool flush_tail_();
 
   // The configured format the USB stream runs with. Callers such as the media pipeline set audio_stream_info_ for
-  // each item, so play() checks it against this instead of reopening the stream with another format.
+  // each item, so play() checks it against this instead of reopening the stream with another format. Audio with
+  // narrower samples (16 bits and up) is widened to this format; any other difference is refused.
   const audio::AudioStreamInfo usb_stream_info_;
   uint32_t write_timeout_ms_;
   // Frame-aligned size of each driver write, set in setup().

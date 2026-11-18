@@ -1,7 +1,12 @@
 import esphome.codegen as cg
 from esphome.components import speaker
 import esphome.config_validation as cv
-from esphome.const import CONF_BUFFER_SIZE, CONF_ID, CONF_SAMPLE_RATE
+from esphome.const import (
+    CONF_BITS_PER_SAMPLE,
+    CONF_BUFFER_SIZE,
+    CONF_ID,
+    CONF_SAMPLE_RATE,
+)
 from esphome.types import ConfigType
 
 from .. import (
@@ -24,6 +29,17 @@ CONF_WRITE_TIMEOUT = "write_timeout"
 PACKETS_PER_TRANSFER = 3
 
 
+# The narrowest samples the speaker widens to the USB stream's size. Media players hand out 16-bit audio.
+MIN_WIDENED_BITS = 16
+
+
+def set_speaker_stream_limits(config: ConfigType) -> ConfigType:
+    """Pin rate and channels to the USB format, and take samples from 16 bits up to its sample size."""
+    return set_stream_limits(
+        config, min(MIN_WIDENED_BITS, int(config[CONF_BITS_PER_SAMPLE]))
+    )
+
+
 def validate_buffer_size(config: ConfigType) -> ConfigType:
     """The driver only sends complete transfers, so the buffer must hold two of them to keep audio flowing."""
     frames_per_packet = -(-config[CONF_SAMPLE_RATE] // 1000)
@@ -40,7 +56,7 @@ CONFIG_SCHEMA = cv.All(
             ): cv.positive_time_period_milliseconds,
         }
     ),
-    set_stream_limits,
+    set_speaker_stream_limits,
     validate_buffer_size,
     request_speaker_fifo,
 )

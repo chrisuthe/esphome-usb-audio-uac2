@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <functional>
+#include <vector>
 
 #include "esphome/components/usb_audio/speaker/usb_audio_speaker.h"
 #include "esphome/core/hal.h"
@@ -127,6 +128,8 @@ struct FakeDriver {
 };
 
 static FakeDriver g_driver;
+// Every byte the speaker handed to the driver, silence padding included
+static std::vector<uint8_t> g_sent;
 
 static void pass_time(uint32_t ms) {
   for (uint32_t i = 0; i < ms; i++) {
@@ -155,7 +158,11 @@ esp_err_t USBAudioComponent::write_speaker(const uint8_t *data, size_t length, u
     }
     pass_time(1);
   }
-  return g_driver.write(length);
+  const esp_err_t err = g_driver.write(length);
+  if (err == ESP_OK) {
+    g_sent.insert(g_sent.end(), data, data + length);
+  }
+  return err;
 }
 #ifndef STOCK_SPEAKER
 bool USBAudioComponent::get_speaker_progress(uac_host_tx_progress_t &progress) {
@@ -347,11 +354,107 @@ static void test_tail_flush_cut_short_by_the_driver() {
   printf("ok: %s\n", g_test);
 }
 
+// A media player hands out 16-bit audio, and a DAC may offer only 24 or 32 bits. The speaker takes the narrower samples
+// and widens them to the USB stream's size: each sample goes out with zero bytes below it, which is the same value
+// at the larger size. play() answers in the caller's bytes, and the frames reported back are the caller's frames.
+static void test_narrower_samples_are_widened() {
+  struct Case {
+    uint8_t usb_bits;
+    uint8_t audio_bits;
+  };
+  for (const Case c : {Case{24, 16}, Case{32, 16}, Case{32, 24}}) {
+    const audio::AudioStreamInfo usb(c.usb_bits, 2, 48000);
+    const audio::AudioStreamInfo audio_info(c.audio_bits, 2, 48000);
+    USBAudioComponent hub;
+    TestSpeaker speaker(usb, BUFFER_BYTES, 100);
+    speaker.set_parent(&hub);
+    speaker.setup();
+    new_test("narrower samples are widened", speaker);
+    g_driver.transfer_bytes = usb.frames_to_bytes(144);  // 3 ms of 48 kHz
+    uint32_t reported = 0;
+    speaker.add_audio_output_callback([&reported](uint32_t frames, int64_t) { reported += frames; });
+    speaker.set_audio_stream_info(audio_info);
+
+    start_stream(speaker);
+    const size_t in_sample = c.audio_bits / 8;
+    const size_t out_sample = c.usb_bits / 8;
+    const uint32_t frames = 720;  // five transfers
+    const size_t in_total = audio_info.frames_to_bytes(frames);
+    for (size_t i = 0; i < in_total; i++) {
+      g_audio[i] = static_cast<uint8_t>(i * 7 + 1);
+    }
+    g_sent.clear();
+    size_t written = 0;
+    for (int i = 0; i < 200 && written < in_total; i++) {
+      written += speaker.play(g_audio + written, in_total - written, 0);
+      expect_count_matches(speaker, "after a write of narrower samples");
+      g_driver.complete();
+      speaker.loop();
+      g_time_ms += 3;
+    }
+    if (written != in_total) {
+      fail("%u-bit audio into a %u-bit stream: play() took %zu of %zu bytes", c.audio_bits, c.usb_bits, written, in_total);
+    }
+    if (g_sent.size() != usb.frames_to_bytes(frames)) {
+      fail("%u-bit audio into a %u-bit stream: the driver got %zu bytes for %" PRIu32 " frames, %zu were expected",
+           c.audio_bits, c.usb_bits, g_sent.size(), frames, usb.frames_to_bytes(frames));
+    }
+    for (size_t sample = 0; sample < frames * 2; sample++) {
+      const uint8_t *out = &g_sent[sample * out_sample];
+      const uint8_t *in = &g_audio[sample * in_sample];
+      for (size_t b = 0; b < out_sample; b++) {
+        const size_t pad = out_sample - in_sample;
+        const uint8_t expected = b < pad ? 0 : in[b - pad];
+        if (out[b] != expected) {
+          fail("%u-bit audio into a %u-bit stream: sample %zu byte %zu is 0x%02X, 0x%02X was expected", c.audio_bits,
+               c.usb_bits, sample, b, out[b], expected);
+        }
+      }
+    }
+    expect_finish_stops(speaker);
+    if (reported != frames) {
+      fail("%u-bit audio into a %u-bit stream: %" PRIu32 " frames were reported as played, %" PRIu32 " were written",
+           c.audio_bits, c.usb_bits, reported, frames);
+    }
+  }
+  printf("ok: %s\n", g_test);
+}
+
+// Audio the USB stream cannot carry is still refused: another rate, another channel count, or wider samples.
+static void test_other_formats_are_refused() {
+  struct Case {
+    audio::AudioStreamInfo usb;
+    audio::AudioStreamInfo audio_info;
+  };
+  for (const Case &c : {Case{{24, 2, 48000}, {16, 2, 44100}}, Case{{24, 2, 48000}, {16, 1, 48000}},
+                        Case{{16, 2, 48000}, {24, 2, 48000}}, Case{{24, 2, 48000}, {8, 2, 48000}}}) {
+    USBAudioComponent hub;
+    TestSpeaker speaker(c.usb, BUFFER_BYTES, 100);
+    speaker.set_parent(&hub);
+    speaker.setup();
+    new_test("audio the stream cannot carry is refused", speaker);
+    g_driver.transfer_bytes = c.usb.frames_to_bytes(144);
+    start_stream(speaker);
+    speaker.set_audio_stream_info(c.audio_info);
+    g_sent.clear();
+    const size_t written = speaker.play(g_audio, 1200, 0);
+    if (written != 0 || !g_sent.empty()) {
+      fail("%u-bit %u-channel %" PRIu32 " Hz audio into a %u-bit %u-channel %" PRIu32
+           " Hz stream: play() took %zu bytes and the driver got %zu",
+           c.audio_info.get_bits_per_sample(), c.audio_info.get_channels(), c.audio_info.get_sample_rate(),
+           c.usb.get_bits_per_sample(), c.usb.get_channels(), c.usb.get_sample_rate(), written, g_sent.size());
+    }
+  }
+  printf("ok: %s\n", g_test);
+}
+
 int main() {
   test_count_follows_the_driver();
 #ifndef STOCK_SPEAKER
   test_writer_waiting_across_a_stop_and_start();
   test_tail_flush_cut_short_by_the_driver();
+  test_narrower_samples_are_widened();
+  test_other_formats_are_refused();
 #endif
   test_volume_change_while_playing();
   printf("PASS\n");
