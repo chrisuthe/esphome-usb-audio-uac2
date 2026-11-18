@@ -1,0 +1,232 @@
+descriptors/0bda_4f25.bin: 1743 bytes, high speed
+  UAC version 0x0200, control interface 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0300 wLength 74 -> 74 bytes
+  interface 1: microphone, 4 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x83 mps 28 attr 0x05 interval 1, terminal 19, feature unit 27 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 3, feedback endpoint 0x00 mps 0 interval 0
+    alt 2: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x83 mps 42 attr 0x05 interval 1, terminal 19, feature unit 27 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 3, feedback endpoint 0x00 mps 0 interval 0
+    alt 3: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x83 mps 28 attr 0x05 interval 1, terminal 19, feature unit 27 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 3, feedback endpoint 0x00 mps 0 interval 0
+    alt 4: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x83 mps 42 attr 0x05 interval 1, terminal 19, feature unit 27 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 3, feedback endpoint 0x00 mps 0 interval 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1B00 wLength 8 -> 8 bytes
+  volume range: 0x0, -15360..0 step 256 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1B00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1B00 wLength 2 data 00 E2
+  set volume -30 dB: 0x0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0400 wLength 74 -> 74 bytes
+  interface 2: microphone, 4 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x84 mps 28 attr 0x05 interval 1, terminal 20, feature unit 28 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 4, feedback endpoint 0x00 mps 0 interval 0
+    alt 2: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x84 mps 42 attr 0x05 interval 1, terminal 20, feature unit 28 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 4, feedback endpoint 0x00 mps 0 interval 0
+    alt 3: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x84 mps 28 attr 0x05 interval 1, terminal 20, feature unit 28 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 4, feedback endpoint 0x00 mps 0 interval 0
+    alt 4: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x84 mps 42 attr 0x05 interval 1, terminal 20, feature unit 28 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 4, feedback endpoint 0x00 mps 0 interval 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1C00 wLength 8 -> 8 bytes
+  volume range: 0x0, -15360..0 step 256 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1C00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1C00 wLength 2 data 00 E2
+  set volume -30 dB: 0x0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0500 wLength 74 -> 74 bytes
+  interface 3: speaker, 8 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x05 mps 28 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 2: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x05 mps 42 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 3: format 1, 4 ch, 16-bit in 2 byte(s), endpoint 0x05 mps 56 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 4: format 1, 4 ch, 24-bit in 3 byte(s), endpoint 0x05 mps 84 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 5: format 1, 6 ch, 16-bit in 2 byte(s), endpoint 0x05 mps 84 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 6: format 1, 6 ch, 24-bit in 3 byte(s), endpoint 0x05 mps 126 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 7: format 1, 8 ch, 16-bit in 2 byte(s), endpoint 0x05 mps 112 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    alt 8: format 1, 8 ch, 24-bit in 3 byte(s), endpoint 0x05 mps 168 attr 0x09 interval 1, terminal 13, feature unit 29 vol 0xFE mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 5, feedback endpoint 0x00 mps 0 interval 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1D00 wLength 8 -> 8 bytes
+  volume range: 0x0, -15360..0 step 256 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0203 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0204 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0205 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0206 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0207 wIndex 0x1D00 wLength 2 data 00 E2
+  set volume -30 dB: 0x0
+  start 44100 Hz, 16-bit, 2 ch:
+    claim: interface 3 alt 1
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0003 wLength 0 data
+    control: bmRequestType 0xA1 bRequest 0x01 wValue 0x0100 wIndex 0x0500 wLength 4 -> 4 bytes
+    [I][uac-host] Clock 5 already at 44100 Hz
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0001 wIndex 0x0003 wLength 0 data
+    [I][uac-host] Resume Interface 3-1
+  start result: OK (0x0)
+  streaming alt 1, nominal packet 20 bytes
+  volume range 0..0 step 0 (1/256 dB)
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1D00 wLength 8 -> 8 bytes
+  volume range -15360..0 step 256 (1/256 dB) after query
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0203 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0204 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0205 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0206 wIndex 0x1D00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0207 wIndex 0x1D00 wLength 2 data 00 E2
+    [I][uac-host] Set volume 50%, Interface 3-1
+  set volume 50%: OK
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0100 wIndex 0x1D00 wLength 1 data 00
+    [I][uac-host] Unmute Interface 3-1
+  set mute off: 0x0
+  24000 packets carry 132300 frames: 11700 of nominal size, 12300 one frame longer, 0 one frame shorter
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0003 wLength 0 data
+    [I][uac-host] Suspend Interface 3-0
+  stop: 0x0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x0600 wLength 74 -> 74 bytes
+  interface 4: speaker, 14 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 2: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 3: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 4: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 5: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 6: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 7: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 8: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 9: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 10: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 11: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 12: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 13: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x06 mps 248 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    alt 14: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x06 mps 372 attr 0x09 interval 1, terminal 14, feature unit 30 vol 0x06 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 6, feedback endpoint 0x00 mps 0 interval 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1E00 wLength 8 -> 8 bytes
+  volume range: 0x0, -15360..0 step 256 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1E00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1E00 wLength 2 data 00 E2
+  set volume -30 dB: 0x0
+  start 44100 Hz, 16-bit, 2 ch:
+    claim: interface 4 alt 1
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0004 wLength 0 data
+    control: bmRequestType 0xA1 bRequest 0x01 wValue 0x0100 wIndex 0x0600 wLength 4 -> 4 bytes
+    [I][uac-host] Clock 6 already at 44100 Hz
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0001 wIndex 0x0004 wLength 0 data
+    [I][uac-host] Resume Interface 4-1
+  start result: OK (0x0)
+  streaming alt 1, nominal packet 20 bytes
+  volume range 0..0 step 0 (1/256 dB)
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0201 wIndex 0x1E00 wLength 8 -> 8 bytes
+  volume range -15360..0 step 256 (1/256 dB) after query
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0201 wIndex 0x1E00 wLength 2 data 00 E2
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0202 wIndex 0x1E00 wLength 2 data 00 E2
+    [I][uac-host] Set volume 50%, Interface 4-1
+  set volume 50%: OK
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0100 wIndex 0x1E00 wLength 1 data 00
+    [I][uac-host] Unmute Interface 4-1
+  set mute off: 0x0
+  24000 packets carry 132300 frames: 11700 of nominal size, 12300 one frame longer, 0 one frame shorter
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0004 wLength 0 data
+    [I][uac-host] Suspend Interface 4-0
+  stop: 0x0

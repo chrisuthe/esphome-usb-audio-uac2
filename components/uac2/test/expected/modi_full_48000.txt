@@ -1,0 +1,42 @@
+descriptors/30be_100c.bin: 266 bytes, full speed
+  UAC version 0x0200, control interface 0
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 74 -> 74 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x02 wValue 0x0100 wIndex 0x2800 wLength 74 -> 74 bytes
+  interface 1: speaker, 3 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x01 mps 512 attr 0x05 interval 1, terminal 2, feature unit 10 vol 0x00 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 40, feedback endpoint 0x81 mps 4 interval 4
+    alt 2: format 1, 2 ch, 24-bit in 3 byte(s), endpoint 0x01 mps 512 attr 0x05 interval 1, terminal 2, feature unit 10 vol 0x00 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 40, feedback endpoint 0x81 mps 4 interval 4
+    alt 3: format 1, 2 ch, 32-bit in 4 byte(s), endpoint 0x01 mps 1024 attr 0x05 interval 1, terminal 2, feature unit 10 vol 0x00 mute 0x01, ep freq ctrl 0
+           rates: 44100 48000 88200 96000 176400 192000
+           clock 40, feedback endpoint 0x81 mps 4 interval 4
+  start 48000 Hz, 16-bit, 2 ch:
+    claim: interface 1 alt 1
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0001 wLength 0 data
+    control: bmRequestType 0xA1 bRequest 0x01 wValue 0x0100 wIndex 0x2800 wLength 4 -> 4 bytes
+    [I][uac-host] Set clock 40 frequency 48000 (was 44100)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0100 wIndex 0x2800 wLength 4 data 80 BB 00 00
+    control: bmRequestType 0xA1 bRequest 0x01 wValue 0x0200 wIndex 0x2800 wLength 1 -> 1 bytes
+    [I][uac-host] Clock 40 valid after 0 ms
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0001 wIndex 0x0001 wLength 0 data
+    [I][uac-host] Resume Interface 1-1
+    submit: endpoint 0x81, 1 packet(s), 4 bytes
+  start result: OK (0x0)
+  streaming alt 1, nominal packet 192 bytes
+  volume range 0..0 step 0 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0100 wIndex 0x0A00 wLength 1 data 00
+    [I][uac-host] Unmute Interface 1-1
+  set mute off: 0x0
+    [I][uac-host] Feedback asks for 48009 Hz
+    submit: endpoint 0x81, 1 packet(s), 4 bytes
+  feedback taken: 48.0099 frames per packet
+  24000 packets carry 1152238 frames: 23762 of nominal size, 238 one frame longer, 0 one frame shorter
+    control: bmRequestType 0x01 bRequest 0x0B wValue 0x0000 wIndex 0x0001 wLength 0 data
+    [I][uac-host] Suspend Interface 1-0
+  stop: 0x0

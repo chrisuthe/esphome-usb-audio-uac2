@@ -1,0 +1,45 @@
+# The least a configuration needs for USB audio with these components: a speaker and a microphone on one USB device.
+# It has no network and nothing that plays or records, so it is a starting point and a build check, not a firmware to
+# use. Copy the usb_audio, uac2, speaker and microphone parts into a configuration that works on your board.
+# It loads the components from the folder next to this file's copy: put it beside components/, or replace the source
+# with the github:// one from the README.
+# For another chip: esphome -s variant esp32s3 compile minimal.yaml
+
+substitutions:
+  variant: esp32p4
+
+esphome:
+  name: uac2-minimal-${variant}
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [uac2, usb_audio]
+
+esp32:
+  variant: ${variant}
+  framework:
+    type: esp-idf
+    # ESPHome hides the USB driver's own lines unless this is INFO: which interface it starts, the rate it sets on
+    # the device's clock, and its warnings about skipped packets
+    log_level: INFO
+
+logger:
+
+usb_audio:
+
+uac2:
+
+speaker:
+  # The device must offer this exact format; on a mismatch the log lists the formats it does offer
+  - platform: usb_audio
+    sample_rate: 48000
+    bits_per_sample: 16bit
+    num_channels: 2
+
+microphone:
+  - platform: usb_audio
+    sample_rate: 48000
+    bits_per_sample: 16bit
+    num_channels: 2

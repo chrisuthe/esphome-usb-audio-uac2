@@ -1,0 +1,11 @@
+This repository holds two components with different licences.
+
+components/uac2
+    Apache License 2.0, see components/uac2/LICENSE. The driver in components/uac2/usb_host_uac is
+    Copyright Espressif Systems (Shanghai) CO LTD, with changes that the README lists.
+
+components/usb_audio
+    The ESPHome licence, see components/usb_audio/LICENSE: GPLv3 for the C++ files, MIT for the Python files.
+    Copyright ESPHome, with changes that the README lists.
+
+Everything else in this repository (the README, the examples) is under the MIT licence part of the ESPHome licence.

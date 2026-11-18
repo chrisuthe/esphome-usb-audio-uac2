@@ -1,0 +1,121 @@
+# ESP32-S31-Function-CoreBoard-1 as a Sendspin player on a USB DAC (UAC 2.0, High-Speed).
+# This is the configuration the components were tested with: a Schiit Modi+ (plays from its own clock and steers the
+# host through a feedback endpoint) and a CUBILUX CA7 (set speaker_interface: 4 under uac2 for its headphone jack).
+# It loads the components from the folder next to this file's copy: put it beside components/ and secrets.yaml, or
+# replace the source with the github:// one from the README.
+# secrets.yaml needs wifi_ssid, wifi_password, api_encryption_key and ota_password.
+
+substitutions:
+  # The rate the USB stream runs at. The device must offer it.
+  usb_sample_rate: "48000"
+
+esphome:
+  name: s31-usb-dac
+  friendly_name: S31 USB DAC
+  min_version: 2026.11.0b1
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [uac2, usb_audio]
+
+esp32:
+  variant: esp32s31
+  framework:
+    type: esp-idf
+    version: 6.1.0
+    # INFO keeps the USB driver's own lines ("Resume Interface", "Feedback asks for N Hz"). DEBUG adds its descriptor
+    # dump, and with it about 250 lines a second from the network stack; printing those cost about five Sendspin
+    # sync losses a minute on the Schiit Modi+.
+    log_level: INFO
+    sdkconfig_options:
+      # Octal PSRAM holds MPLL at 400 MHz, which cannot be divided down to RGMII's 125 MHz; use the Audio PLL
+      CONFIG_ETH_EMAC_RGMII_TX_CLK_SRC_APLL: y
+      # On a gigabit link the server can send a burst of frames faster than the receive task empties the Ethernet
+      # controller's buffers. The default 20 buffers of 512 bytes hold six full frames, and the controller threw
+      # away 1 to 9 frames a second of the Sendspin stream. 30 buffers of 1600 bytes hold 30 frames.
+      CONFIG_ETH_DMA_BUFFER_SIZE: "1600"
+      CONFIG_ETH_DMA_RX_BUFFER_NUM: "30"
+  flash_size: 16MB
+
+psram:
+  mode: octal
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  id: wifi_1
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+network:
+  priority:
+    - ethernet
+    - wifi
+
+ethernet:
+  id: ethernet_1
+  type: YT8531
+  mdc_pin: GPIO5
+  mdio_pin: GPIO6
+  power_pin: GPIO7
+  on_connect:
+    - wifi.disable:
+  on_disconnect:
+    - wifi.enable:
+
+usb_audio:
+  id: usb_audio_hub
+
+# Replaces usb_audio's USB driver with the UAC 2.0-capable one in components/uac2/usb_host_uac.
+# With no speaker_interface, usb_audio opens the first playback interface the device announces (the Modi+'s is 1).
+uac2:
+
+speaker:
+  # The device must support this exact format; on a mismatch the log lists the formats it does support
+  - platform: usb_audio
+    id: usb_speaker
+    sample_rate: ${usb_sample_rate}
+    bits_per_sample: 16bit
+    num_channels: 2
+
+  - platform: resampler
+    id: media_resampling_speaker
+    output_speaker: usb_speaker
+    sample_rate: ${usb_sample_rate}
+    bits_per_sample: 16
+
+sendspin:
+  id: sendspin_hub
+  # PSRAM stack skews time sync; keep internal
+  task_stack_in_psram: false
+
+media_source:
+  - platform: sendspin
+    id: sendspin_source
+
+media_player:
+  - platform: sendspin
+    id: sendspin_group_media_player
+    name: "Sendspin Player"
+
+  - platform: speaker_source
+    id: usb_media_player
+    name: "Player"
+    media_pipeline:
+      speaker: media_resampling_speaker
+      format: FLAC
+      num_channels: 2
+      sample_rate: 48000
+      sources:
+        - sendspin_source

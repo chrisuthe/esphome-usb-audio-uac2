@@ -1,0 +1,28 @@
+# Places the USB host controller driver and its hardware layer in RAM.
+#
+# For every isochronous transfer the controller driver (espressif/usb, hcd_dwc.c) halts the channel, and its interrupt
+# handler has to enable it again before the next microframe, 125 us later. That handler and the hardware-layer
+# functions it calls (ESP-IDF, usb_dwc_hal.c) are linked into flash. Behind the ESP32-S31's 16 KB instruction cache
+# their code is often gone by the next transfer; each cache line read back from flash cost about 4 us, the handler
+# needed up to 150 us, and the next transfer lost its first packet (0.2 to 1.2 % of the transfers on a CA7, measured
+# 2026-11-17). With both files in RAM the handler took 2 to 4 us in 84,656 of 84,656 transfers and no packet was lost.
+#
+# This belongs upstream, in the two components themselves. It is here because this driver is the one that needs it.
+# test/check_ram.sh checks a build's link map for it.
+
+# The library's archive is named after where it comes from: libespressif__usb.a from the component manager
+[mapping:uac_usb_hcd]
+archive: libespressif__usb.a
+entries:
+    if UAC_USB_INTERRUPT_PATH_IN_RAM = y:
+        hcd_dwc (noflash)
+    else:
+        * (default)
+
+[mapping:uac_usb_dwc_hal]
+archive: libesp_hal_usb.a
+entries:
+    if UAC_USB_INTERRUPT_PATH_IN_RAM = y:
+        usb_dwc_hal (noflash)
+    else:
+        * (default)

@@ -1,0 +1,29 @@
+# The Sendspin player of esp32-s31-function-coreboard.yaml, which also offers the USB device's input to the server
+# as a Sendspin source (a line-in the server can play on other players).
+# Tested with a CUBILUX CA7: usb_audio opens the first recording interface a device announces, which is the CA7's
+# line input. Its headphone jack needs speaker_interface: 4 under uac2.
+# Keep this file beside esp32-s31-function-coreboard.yaml.
+
+packages:
+  base: !include esp32-s31-function-coreboard.yaml
+
+esphome:
+  on_boot:
+    then:
+      # A line input cannot tell whether something is playing into it, so it always offers its audio. Without this
+      # the source reports "absent", and a server can take that as "nothing to play".
+      - sendspin.source.set_signal:
+          present: true
+
+microphone:
+  - platform: usb_audio
+    id: usb_line_in
+    sample_rate: ${usb_sample_rate}
+    bits_per_sample: 16bit
+    num_channels: 2
+
+sendspin:
+  source:
+    microphone:
+      microphone: usb_line_in
+      channels: [0, 1]

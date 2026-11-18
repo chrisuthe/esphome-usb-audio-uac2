@@ -1,0 +1,18 @@
+descriptors/046d_085b.bin: 2503 bytes, full speed
+  UAC version 0x0100, control interface 2
+  interface 3: microphone, 3 alternate setting(s)
+    alt 1: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x82 mps 68 attr 0x05 interval 4, terminal 3, feature unit 5 vol 0x01 mute 0x01, ep freq ctrl 1
+           rates: 16000
+           clock 0, feedback endpoint 0x00 mps 0 interval 0
+    alt 2: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x82 mps 100 attr 0x05 interval 4, terminal 3, feature unit 5 vol 0x01 mute 0x01, ep freq ctrl 1
+           rates: 24000
+           clock 0, feedback endpoint 0x00 mps 0 interval 0
+    alt 3: format 1, 2 ch, 16-bit in 2 byte(s), endpoint 0x82 mps 132 attr 0x05 interval 4, terminal 3, feature unit 5 vol 0x01 mute 0x01, ep freq ctrl 1
+           rates: 32000
+           clock 0, feedback endpoint 0x00 mps 0 interval 0
+    control: bmRequestType 0xA1 bRequest 0x82 wValue 0x0200 wIndex 0x0502 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x83 wValue 0x0200 wIndex 0x0502 wLength 2 -> 2 bytes
+    control: bmRequestType 0xA1 bRequest 0x84 wValue 0x0200 wIndex 0x0502 wLength 2 -> 2 bytes
+  volume range: 0x0, 0..0 step 0 (1/256 dB)
+    control: bmRequestType 0x21 bRequest 0x01 wValue 0x0200 wIndex 0x0502 wLength 2 data 00 E2
+  set volume -30 dB: 0x0
