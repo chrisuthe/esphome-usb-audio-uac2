@@ -35,6 +35,23 @@ CONFIG_SCHEMA = cv.Schema(
 ).extend(cv.COMPONENT_SCHEMA)
 
 
+def _require_uac2(config: ConfigType) -> ConfigType:
+    """Reject a configuration that lacks the uac2 component.
+
+    This copy calls functions that only uac2's USB driver has. Without uac2 the build takes Espressif's driver and
+    stops in the compiler.
+    """
+    if "uac2" not in fv.full_config.get():
+        raise cv.Invalid(
+            "This usb_audio needs the uac2 component, which supplies its USB driver. Add 'uac2:' to the "
+            "configuration, and list uac2 beside usb_audio under external_components."
+        )
+    return config
+
+
+FINAL_VALIDATE_SCHEMA = _require_uac2
+
+
 def stream_schema(default_sample_rate: int, default_num_channels: int) -> cv.Schema:
     """Stream format and buffer options shared by the speaker and microphone platforms."""
     return cv.Schema(

@@ -152,6 +152,20 @@ capture /tmp/speaker.txt /tmp/test_speaker
 expect /tmp/speaker.txt "PASS"
 grep '^ok:' /tmp/speaker.txt | sed 's/^ok: /ok: speaker: /'
 
+# usb_audio without its uac2 entry must be rejected when the configuration is checked, with a message that names the
+# fix. Otherwise the build takes Espressif's driver and stops in the compiler, on functions that driver lacks.
+# The input is the minimal example with that one line removed; the example itself must stay valid.
+sed -e '/^uac2:$/d' -e 's|path: components|path: /config/components|' /config/minimal.yaml > /tmp/no_uac2.yaml
+grep -q '^usb_audio:$' /tmp/no_uac2.yaml && ! grep -q '^uac2:' /tmp/no_uac2.yaml \
+  || { echo "FAIL: could not take the uac2 entry out of minimal.yaml"; exit 1; }
+if esphome config /tmp/no_uac2.yaml > /tmp/no_uac2.txt 2>&1; then
+  echo "FAIL: a configuration with usb_audio and no uac2 entry is accepted"; exit 1
+fi
+expect /tmp/no_uac2.txt "Add 'uac2:' to the configuration"
+esphome config /config/minimal.yaml > /tmp/minimal_config.txt 2>&1 \
+  || { tail -5 /tmp/minimal_config.txt; echo "FAIL: minimal.yaml is not a valid configuration"; exit 1; }
+echo "ok: usb_audio without a uac2 entry is rejected with the fix named"
+
 # STOCK=1 also runs the speaker tests against ESPHome's unchanged usb_audio in this image and prints what it does.
 # It is not part of the result: 2026.11.0b4's speaker fails the volume change test.
 if [ -n "$STOCK" ]; then
